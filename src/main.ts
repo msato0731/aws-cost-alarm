@@ -1,23 +1,22 @@
-import { App, Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { App } from 'aws-cdk-lib';
+import { BillingAlarmStack } from './billing_alarm_stack';
+import 'dotenv/config';
 
-export class MyStack extends Stack {
-  constructor(scope: Construct, id: string, props: StackProps = {}) {
-    super(scope, id, props);
-
-    // define resources here...
-  }
-}
-
-// for development, use account/region from cdk cli
-const devEnv = {
+const env = {
   account: process.env.CDK_DEFAULT_ACCOUNT,
-  region: process.env.CDK_DEFAULT_REGION,
+  region: 'us-east-1',
 };
+
 
 const app = new App();
 
-new MyStack(app, 'aws-cost-alarm-dev', { env: devEnv });
-// new MyStack(app, 'aws-cost-alarm-prod', { env: prodEnv });
+new BillingAlarmStack(app, 'billing-alarm', {
+  env,
+  slackWorkspaceId: process.env.SLACK_WORKSPACE_ID!,
+  slackChannelConfigurationName: process.env.SLACK_CHANNEL_CONFIGURATION_NAME!,
+  slackChannelId: process.env.SLACK_CHANNEL_ID!,
+  budgetLimitAmountUsd: 50,
+  costAnomaryThresholdUsd: 1,
+});
 
 app.synth();
